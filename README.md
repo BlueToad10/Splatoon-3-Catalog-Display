@@ -15,6 +15,17 @@ Wide Button List: Displays last 10 rounds of the list up to 100, each one rotate
 
 M N P Buttons: Same as Main Display
 
+Scroll button: Toggle the moving backgrounds from updating.
+Float: Toggle the display moving up and down.
+
+"Save to File" button: Saves last 100 Rounds to Rounds file.
+"Load from File" button: Loads last 100 Rounds from Rounds file. (Overwrites current round stat keeping!)
+Rounds file: for adjusting the last hundred rounds in text form. (Newest at the bottom, Oldest at the top, represented by "W, L, D" for Win, Loss, Disconnect.)
+
+
+Settings file: for adjusting the Points and Multiplier's background colors. (Possibly more in future.)
+
 Not sure the accuracy is perfect, but I usually find 83 hours to be about right for every season, daily bonuses are not counted, and everything can vary, such is life.
 The main display window is made to be green screened.
-Sorry if it doesn't run well or crashes, it wasn't made for use by others, but I hope it does work and I do want to see other peoples Round scores and if this helps reach level 100 in the season catalog, @ Me on socials!
+Sorry if it doesn't run well or crashes, it wasn't originally made for use by others, but I hope it does work and I do want to see other peoples Round scores and if this helps reach level 100 in the season catalog, @ Me on socials!
+(Update, it says it's running slow, but that's entirely based on the way it draws the necessary text)
