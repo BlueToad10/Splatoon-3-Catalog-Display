@@ -7,6 +7,7 @@ Right click: Level down
 M: Rotate multiplier between 1.0x 1.2x, and 1.5x
 N: Get average of results
 P: Toggle between: Using round averages, and using base averages
+Q+W+E: Remove all rounds except for the last 10
 
 Turf Rounds Log:
 W L D Buttons 1: add Win, Lose, or Disconnect at top of list
@@ -22,10 +23,8 @@ Float: Toggle the display moving up and down.
 "Load from File" button: Loads last 100 Rounds from Rounds file. (Overwrites current round stat keeping!)
 Rounds file: for adjusting the last hundred rounds in text form. (Newest at the bottom, Oldest at the top, represented by "W, L, D" for Win, Loss, Disconnect.)
 
-
 Settings file: for adjusting the Points and Multiplier's background colors. (Possibly more in future.)
 
-Not sure the accuracy is perfect, but I usually find 83 hours to be about right for every season, daily bonuses are not counted, and everything can vary, such is life.
-The main display window is made to be green screened.
-Sorry if it doesn't run well or crashes, it wasn't originally made for use by others, but I hope it does work and I do want to see other peoples Round scores and if this helps reach level 100 in the season catalog, @ Me on socials!
-(Update, it says it's running slow, but that's entirely based on the way it draws the necessary text)
+Not sure the accuracy is perfect, but I usually find 80 hours to be about right for every season, and everything can vary, such is life.
+The main display window is made to be green screened. Colors are adjustable in the "settings" file.
+I do want to see other peoples Round scores and if this helps reach level 100 in the season catalog, @ Me on socials!
