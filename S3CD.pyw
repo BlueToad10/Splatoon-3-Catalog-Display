@@ -2,7 +2,7 @@ import os, sys, time, random, pickle
 import pygame, tkinter
 from pygame.locals import *
 from tkinter.font import BOLD, Font
-version = "1.3.2"
+version = "1.3.3"
 Title = f"S3 Catalog Display {version}"
 tkTitle = f"S3 Turf Rounds Log"
 
@@ -20,9 +20,7 @@ firstWinPoints = 7500# + winPoints = 8900
 multiplierInt = 0
 currentDirectory = os.getcwd() #print(currentDirectory)
 
-def terminate():
-    pygame.quit()
-    sys.exit()
+def terminate(): pygame.quit(); sys.exit()
 def percentage(part, whole):
     try: Percentage = 100 * float(part)/float(whole)
     except: Percentage = 0
@@ -42,6 +40,8 @@ if multiplier == multipliers[2]: multiplierInt = 2
 
 levelsNeeded = 100-levelsNeededA
 roundsUp, baseChance = False, False
+try: roundsUp = load(f"{currentDirectory}\stuff\\pickle\\roundsUp.pkl")
+except: pass 
 try: baseChance = load(f"{currentDirectory}\stuff\\pickle\\baseChance.pkl")  #pickle.dump to create base file
 except: pass 
 
@@ -49,8 +49,7 @@ WINDOWSIZEX, WINDOWSIZEY = 498+40, 606+40
 WINDOWSIZE =   (WINDOWSIZEX, WINDOWSIZEY)
 extraX, extraY = 20, 20
 FPS = 60
-LEFT = 1
-RIGHT = 3
+LEFT = 1; RIGHT = 3
 
 pygame.init()
 pygame.mixer.init()
@@ -64,7 +63,6 @@ icon = pygame.transform.scale(icon,(32,32))
 pygame.display.set_icon(icon)
 pygame.display.set_caption(Title)
 mainClock = pygame.time.Clock()
-#pygame.mouse.set_visible(False)
 mainFont = pygame.font.Font('stuff\paintball_beta_2.ttf', 49)
 fontSizes = {49: mainFont}
 
@@ -189,6 +187,7 @@ def calculate(returnBool=False, levelsNeeded=levelsNeeded, multiplier=multiplier
     battletime,lobbytime = 3, 2;   lastDay = 0
     timeperround = battletime + lobbytime
     while True:
+        if total > 9500*levelsNeeded or levelsNeeded == 0: break
         toss = random.randint(1,100)#1-12
         rounds += 1
         if toss in disconnectRange: total += disconnect; disconnects += 1     #11%
@@ -198,7 +197,6 @@ def calculate(returnBool=False, levelsNeeded=levelsNeeded, multiplier=multiplier
         if not lastDay == days: lastDay = days; total += firstWinPoints#print(days)
 
         if len(disconnectRange) == 100: disconnects = 3.14159265; total = 9500*levelsNeeded+9
-        if total > 9500*levelsNeeded: break
 
     if not returnBool == True:
         print(f"Lvl {100-levelsNeeded}->100,  +{'{:,}'.format(int(total))}p in  {int(float(str(timeperround*rounds/60)[:5]))}H   {rounds}:  {wins}W  {losses}L  {disconnects}D  x{multiplier}")
@@ -316,34 +314,33 @@ def baseChanceButton():
 def averageButton():
     global roundsUp
     roundsUp = not roundsUp
+    with open(f"stuff\\pickle\\roundsUp.pkl", "wb") as p: pickle.dump(roundsUp, file=p),     p.close()
     tkMake()
 
 def level(value):
-    global levelsNeededA
-    print(levelsNeededA)
+    global levelsNeededA, levelsNeeded
     levelsNeededA += value
     if levelsNeededA > 100: levelsNeededA = 1
     if levelsNeededA < 1: levelsNeededA = 100
     levelsNeeded = 100-levelsNeededA
     with open(f"stuff\\pickle\\levelsNeededA.pkl", "wb") as p: pickle.dump(levelsNeededA, file=p),     p.close()
+    #tkMake()
 
 def rotateRoundId(pos,id):
     global percentList, percentList2
-    if pos == "W": percentList[id] = "L"
+    if   pos == "W": percentList[id] = "L"
     elif pos == "L": percentList[id] = "D"
     elif pos == "D": percentList[id] = "W"
     percentList2 = percentValues(percentList)
     with open(f"stuff\\pickle\\percentList.pkl", "wb") as p: pickle.dump(percentList, file=p),     p.close()
     tkMake()
 
-
 #version  1.3  stuff
 backgroundColor = 0,255,0
 greenBackgroundColor = 90,255,90
 pinkBackgroundColor = 191,0,255
 
-#these toggles need to be pickled so that they can be adjusted easier and loaded later
-windowFloat, backgroundsMove = False, False
+windowFloat, backgroundsMove = False, False  #these toggles need to be pickled so that they can be adjusted easier and loaded later
 try:
     windowFloat     = load(f"{currentDirectory}\stuff\\pickle\\windowFloat.pkl")
     backgroundsMove = load(f"{currentDirectory}\stuff\\pickle\\backgroundsMove.pkl")
@@ -387,19 +384,24 @@ def loadRounds():
     f.close()
     tkMake()
 
+def removeCharactersList(string, StringList):
+    for object in StringList:
+        string = string.replace(object,"")
+    return string
+
 f = open(settingsFile, "r")
+colorInvalidCharacters = ["(", ")", "\n"]
 for line in f:# f.write to create base file
     try:
-        splitline = line.replace("(","").replace(")\n","").replace(", ",",").split(" ")[1]
+        splitline = removeCharactersList(line, colorInvalidCharacters).split(" ")[1]
         splitline = splitline.split(",")
-        if line.startswith("backgroundColor "): backgroundColor = int(splitline[0]), int(splitline[1]), int(splitline[2])
+        if line.startswith("backgroundColor "): backgroundColor      = int(splitline[0]), int(splitline[1]), int(splitline[2])
         if line.startswith("greenbackground "): greenBackgroundColor = int(splitline[0]), int(splitline[1]), int(splitline[2])
-        if line.startswith("pinkbackground "): pinkBackgroundColor = int(splitline[0]), int(splitline[1]), int(splitline[2])
+        if line.startswith("pinkbackground "):  pinkBackgroundColor  = int(splitline[0]), int(splitline[1]), int(splitline[2])
     except: pass
 f.close()
 
-##### for new window
-MainWindow = tkinter.Tk(className=tkTitle)#MainWindow.iconbitmap("S3CD.ico")
+MainWindow = tkinter.Tk(className=tkTitle)##### for new window ↓ ↓ ↓ ↓
 img = tkinter.PhotoImage(file="S3CD.ico")
 MainWindow.tk.call('wm', 'iconphoto', MainWindow._w, img)
 
@@ -408,8 +410,8 @@ MainWindow['background']='#262626'
 
 ButtonImages = [tkinter.PhotoImage(file="stuff\\10.png"), tkinter.PhotoImage(file="stuff\\11.png"), tkinter.PhotoImage(file="stuff\\12.png")]
 ButtonImages2 = [tkinter.PhotoImage(file="stuff\\13.png"), tkinter.PhotoImage(file="stuff\\14.png"), tkinter.PhotoImage(file="stuff\\12.png")]
-roundImages = [tkinter.PhotoImage(file="stuff\\7.png"), tkinter.PhotoImage(file="stuff\\8.png"), tkinter.PhotoImage(file="stuff\\9.png")]
-ButtonImages3 = [tkinter.PhotoImage(file="stuff\\15.png"), tkinter.PhotoImage(file="stuff\\16.png"), tkinter.PhotoImage(file="stuff\\17.png"), tkinter.PhotoImage(file="stuff\\18.png")]
+roundImages = {"W":tkinter.PhotoImage(file="stuff\\7.png"), "L":tkinter.PhotoImage(file="stuff\\8.png"), "D":tkinter.PhotoImage(file="stuff\\9.png")}
+ButtonImages3 = [tkinter.PhotoImage(file="stuff\\15.png"), tkinter.PhotoImage(file="stuff\\16.png"), tkinter.PhotoImage(file="stuff\\17.png"), tkinter.PhotoImage(file="stuff\\18.png"), tkinter.PhotoImage(file="stuff\\17.png"), tkinter.PhotoImage(file="stuff\\25.png")]
 GreyButtonImages = [tkinter.PhotoImage(file="stuff\\19.png"), tkinter.PhotoImage(file="stuff\\20.png")]
 RoundFileButtonImages = [tkinter.PhotoImage(file="stuff\\21.png"), tkinter.PhotoImage(file="stuff\\22.png")]
 ToggleFloatButtonImages = [tkinter.PhotoImage(file="stuff\\23.png"), tkinter.PhotoImage(file="stuff\\24.png")]
@@ -429,11 +431,13 @@ tkinter.Button(MainWindow, command=lambda: forceRound("L"), height=50, width=50,
 tkinter.Button(MainWindow, command=lambda: forceRound("D"), height=50, width=50, bg="grey", image=ButtonImages2[2]).place(x=430,y=0)
 
 tkinter.Button(MainWindow, command=multiplierButton, height=50, width=50, bg="grey", image=ButtonImages3[0]).place(x=60,y=WINDOWSIZEY-26)
+tkinter.Button(MainWindow, command=lambda: level(1), height=25, width=50, bg="grey", image=ButtonImages3[3]).place(x=0,y=WINDOWSIZEY-26)
+tkinter.Button(MainWindow, command=lambda: level(-1), height=25, width=50, bg="grey", image=ButtonImages3[5]).place(x=0,y=WINDOWSIZEY)
 
-if roundsUp == True: button1Image = ButtonImages3[1]
+if   roundsUp == True: button1Image = ButtonImages3[1]
 elif roundsUp == False: button1Image = GreyButtonImages[0]
-if baseChance == True: button2Image = GreyButtonImages[1]
-elif baseChance == False: button2Image = ButtonImages3[2]
+if   baseChance == True: button2Image = ButtonImages3[2]
+elif baseChance == False: button2Image = GreyButtonImages[1]
 
 button1 = tkinter.Button(MainWindow, command=averageButton, height=50, width=50, bg="grey", image=button1Image)
 button2 = tkinter.Button(MainWindow, command=baseChanceButton, height=50, width=50, bg="grey", image=button2Image)
@@ -454,35 +458,27 @@ tkframe.place(x=0,y=70)
 class roundbutton():
     def __init__(self, id, y, image):
         self.id = id
-        tkinter.Button(tkframe, command=lambda: self.command(), width=WINDOWSIZEX-30, height=50, bg="grey", image=image).place(x=10,y=(y*60))
+        self.button = tkinter.Button(tkframe, command=lambda: self.command(), width=WINDOWSIZEX-30, height=50, bg="grey", image=image)
+        self.button.place(x=10,y=(y*60))
     def command(self): rotateRoundId(percentList[self.id],self.id)
 
+roundButtons = []
+for i in range(9):
+    id=len(percentList)-1-i
+    image = roundImages[percentList[id]]
+    roundButtons.append(roundbutton(id,i, image))
+
 def tkMake():
-    global label1, label2, label3, button1, button2
-    global roundsUp, baseChance, percentList, idList
-    for widgets in tkframe.winfo_children():   widgets.destroy()
-    label1.destroy(); label2.destroy(); label3.destroy()
-    label1= tkinter.Label(MainWindow, text=f"{percentList2[0]}", font=Tkfont, fg='white', bg='#262626')
-    label2= tkinter.Label(MainWindow, text=f"{percentList2[1]}", font=Tkfont, fg='white', bg='#262626')
-    label3= tkinter.Label(MainWindow, text=f"{percentList2[2]}", font=Tkfont, fg='white', bg='#262626')
-    label1.place(x=285,y=20); label2.place(x=385,y=20); label3.place(x=485,y=20)
-
-    button1.destroy(); button2.destroy()
-    if roundsUp == True: button1Image = ButtonImages3[1]
-    elif roundsUp == False: button1Image = GreyButtonImages[0]
-    if baseChance == True: button2Image = ButtonImages3[2]
-    elif baseChance == False: button2Image = GreyButtonImages[1]
-
-    button1 = tkinter.Button(MainWindow, command=averageButton, height=50, width=50, bg="grey", image=button1Image)
-    button2 = tkinter.Button(MainWindow, command=baseChanceButton, height=50, width=50, bg="grey", image=button2Image)
-    button1.place(x=120,y=WINDOWSIZEY-26); button2.place(x=180,y=WINDOWSIZEY-26)
-    idList = []
+    label1.configure(text=f"{percentList2[0]}"); label2.configure(text=f"{percentList2[1]}"); label3.configure(text=f"{percentList2[2]}")
+    if   roundsUp == True:    button1Image = ButtonImages3[1]
+    elif roundsUp == False:   button1Image = GreyButtonImages[0]
+    if   baseChance == True:  button2Image = GreyButtonImages[1]
+    elif baseChance == False: button2Image = ButtonImages3[2]
+    button1.configure(image=button1Image); button2.configure(image=button2Image)
     for i in range(9):
         id=len(percentList)-1-i
-        if percentList[id] == "W": image = roundImages[0]
-        if percentList[id] == "L": image = roundImages[1]
-        if percentList[id] == "D": image = roundImages[2]
-        roundbutton(id,i, image)#tkinter.Button(tkframe, command=lambda: rotateRoundId(percentList[id],i), width=WINDOWSIZEX-30, height=50, bg="grey", image=image).place(x=10,y=(i*60))
+        image = roundImages[percentList[id]]
+        roundButtons[i].button.configure(image=image)#roundbutton(id,i, image)
 
 tkMake()
 tkframe.update()
@@ -495,36 +491,23 @@ tick, down = 0, 0
 while True:
     tick += 1
     mainClock.tick(FPS)
-    
-    if tick % 2 == 0:
-        WindowSurface.fill(backgroundColor)
-        bo_List.draw(BOSurface)
-        PinkSurface.fill(pinkBackgroundColor)
-        GreenSurface.fill(greenBackgroundColor)
-        lightPink_List.draw(PinkSurface)
-        darkPink_List.draw(PinkSurface)
-
-        lightGreen_List.draw(GreenSurface)
-        darkGreen_List.draw(GreenSurface)
-        image_List.draw(WindowSurface)
-        drawText(f"{levelsNeededA}", (255,255,255), WindowSurface, 220+extraX, 113+extraY, centerCords=(276, 141+extraY))
-
-        drawText(f"{statsObject[1]}", (255,255,255), GreenSurface, 0, 0, centerCords=(268/2, 23))
-        drawText(f"x{statsObject[7]*1.0}", (255,255,255), PinkSurface, 342+extraX, 168+extraY, centerCords=(119/2, 23))
-
-        drawText(f"{statsObject[2]} Hours", (255,255,255), BOSurface, 187+extraX, 223+extraY, centerCords=(255/2, 20))
-
-        drawText(f"{statsObject[3]}", (255,255,255), WindowSurface, 100+extraX, 278+extraY, centerCords=(335/2, 306+extraY))#+28y
-
-        if baseChance == False:
-            drawText(f"{percentList2[0]}", (255,255,255), WindowSurface, 42+extraX, 354+extraY, centerCords=(60+extraX, 366+extraY), fontSize=25)
-            drawText(f"{percentList2[1]}", (255,255,255), WindowSurface, 416+extraX, 354+extraY, centerCords=(436+extraX, 366+extraY), fontSize=25)
-            drawText(f"{percentList2[2]}", (255,255,255), WindowSurface, 56+extraX, 515+extraY, centerCords=(76+extraX, 528+extraY), fontSize=25)
-
-        drawText(f"{statsObject[4]}", (255,255,255), WindowSurface, 103+extraX, 388+extraY, centerCords=(155, 416+extraY))
-        drawText(f"{statsObject[5]}", (255,255,255), WindowSurface, 290+extraX, 388+extraY, centerCords=(344, 416+extraY))
-
-        drawText(f"{statsObject[6]}", (255,255,255), WindowSurface, 212+extraX, 440+extraY, centerCords=(244+extraX, 468+extraY))
+    WindowSurface.fill(backgroundColor)
+    bo_List.draw(BOSurface)
+    PinkSurface.fill(pinkBackgroundColor);   lightPink_List.draw(PinkSurface);   darkPink_List.draw(PinkSurface)
+    GreenSurface.fill(greenBackgroundColor); lightGreen_List.draw(GreenSurface); darkGreen_List.draw(GreenSurface)
+    image_List.draw(WindowSurface)
+    drawText(f"{levelsNeededA}",        (255,255,255), WindowSurface, 0, 0, centerCords=(276, 141+extraY))
+    drawText(f"{statsObject[1]}",       (255,255,255), GreenSurface,  0, 0, centerCords=(268/2, 23))
+    drawText(f"x{statsObject[7]*1.0}",  (255,255,255), PinkSurface,   0, 0, centerCords=(119/2, 23))
+    drawText(f"{statsObject[2]} Hours", (255,255,255), BOSurface,     0, 0, centerCords=(255/2, 20))
+    drawText(f"{statsObject[3]}",       (255,255,255), WindowSurface, 0, 0, centerCords=(335/2, 306+extraY))
+    if baseChance == False:
+        drawText(f"{percentList2[0]}", (255,255,255), WindowSurface, 0, 0, centerCords=(60+extraX, 366+extraY), fontSize=25)
+        drawText(f"{percentList2[1]}", (255,255,255), WindowSurface, 0, 0, centerCords=(436+extraX, 366+extraY), fontSize=25)
+        drawText(f"{percentList2[2]}", (255,255,255), WindowSurface, 0, 0, centerCords=(76+extraX, 528+extraY), fontSize=25)
+    drawText(f"{statsObject[4]}", (255,255,255), WindowSurface, 0, 0, centerCords=(155, 416+extraY))
+    drawText(f"{statsObject[5]}", (255,255,255), WindowSurface, 0, 0, centerCords=(344, 416+extraY))
+    drawText(f"{statsObject[6]}", (255,255,255), WindowSurface, 0, 0, centerCords=(244+extraX, 468+extraY))
 
     pygame.display.update()
     if roundSwitch == True:
@@ -532,14 +515,13 @@ while True:
             tkframe.update()
             MainWindow.update()
         except:
-            if not roundSwitch == False:
-                roundSwitch = False
-                MainWindow.quit()
+            roundSwitch = not roundSwitch
+            MainWindow.quit()
     pygame.display.set_caption(f"{Title} | FPS: {int(mainClock.get_fps())}")
 
     GreenSurface = WindowSurface.subsurface((44+extraX, 172+extraY, 268, 50))
-    PinkSurface = WindowSurface.subsurface((327+extraX, 172+extraY, 119, 50))
-    BOSurface = WindowSurface.subsurface((160+extraX, 230+extraY, 255, 46))
+    PinkSurface  = WindowSurface.subsurface((327+extraX, 172+extraY, 119, 50))
+    BOSurface    = WindowSurface.subsurface((160+extraX, 230+extraY, 255, 46))
     mainImage.rect.y = 0+extraY
     if tick % 2 == 0:
         if tick % 4 == 0 and backgroundsMove == True:
