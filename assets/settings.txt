@@ -1,0 +1,77 @@
+Colors in 0-255 RGB range:
+backgroundColor (0,71,187)
+backgroundColor (0,177,64)
+greenbackground (90,255,90)
+levelbackground (0,0,0,0)
+
+Draw Order Commands:
+fillSurface:main
+drawList:boList
+fillSurface:pink
+drawList:pinkListLight
+drawList:pinkListDark
+fillSurface:green
+drawList:greenListLight
+drawList:greenListDark
+fillSurface:rank
+drawList:rankList
+drawList:mainList
+fillSurface:level
+drawList:levelList
+
+defeatP 0
+winP 1700
+loseP 500
+KOP 2500
+firstWinPoints 7500
+Ranks C- C C+ B- B B+ A- A A+ S- S S+
+WinConditions winPoints knockoutPoints
+WinConditionCodes W KO
+maxRounds 100
+#Still testing max rounds but feel free to adjust
+regularLevelMax 100
+maxLevels 100
+pointsForLevel 9500
+
+surface:levelRect 45 56 162 50
+surface:rankRect 222 56 228 50
+surface:greenRect 44 172 268 50
+surface:pinkRect 327 172 119 50
+surface:boRect 160 230 255 46
+
+text "{CurrentLevel}" 256 140 center
+text "{rounds}" 157 306 center
+text "{pointsNeeded}" 134 25 GreenSurface center
+text "x{multiplier}" 59 25 PinkSurface center
+text "{hours} Hours" 127 22 BOSurface center
+text "{regularLevel}" 81 25 LevelSurface center
+text "Rank {rank}" 5 0 RankSurface
+
+text "{knockoutPoints}" 100 340 center group:averages size:25
+text "{winPoints}" 100 395 center group:averages size:25
+text "{losePoints}" 100 450 center group:averages size:25
+text "{defeatPoints}" 100 505 center group:averages size:25
+
+text "{knockoutRound}" 190 360 group:rounds center
+text "{winRound}" 190 418 group:rounds center
+text "{loseRound}" 190 476 group:rounds center
+text "{defeatRound}" 190 534 group:rounds center
+
+gear mainweapon 267 322
+gear subweapon 359 342
+gear special 409 342
+
+gear headmain 257 398
+gear headfirst 315 404
+gear headsecond 362 404
+gear headthird 409 404
+
+gear torsomain 257 454
+gear torsofirst 315 460
+gear torsosecond 362 460
+gear torsothird 409 460
+
+gear footmain 257 510
+gear footfirst 315 516
+gear footsecond 362 516
+gear footthird 409 516

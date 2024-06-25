@@ -1,4 +1,0 @@
-colors in 0-255 RGB range
-backgroundColor (0,255,0)
-greenbackground (90,255,90)
-pinkbackground (191,0,255)
